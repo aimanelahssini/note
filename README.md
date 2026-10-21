@@ -4,6 +4,8 @@
 
 <p align="center">An easy way to save stuff and prompts between reboots.</p>
 
+<p align="center"><img src="docs/terminal.svg" alt="Terminal: note saves a line, then a pasted two-line prompt replaces it, then note alone copies it back to the clipboard"></p>
+
 `note` is a one-slot clipboard for your terminal. It holds one note at a time and
 keeps it in `~/Documents/note.txt`, so it's still there after a reboot.
 
