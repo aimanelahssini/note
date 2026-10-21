@@ -1,0 +1,41 @@
+#!/bin/bash
+# note TEXT   save TEXT as the note (replaces the previous one)
+# note +      save what's on the clipboard as the note (any length, multi-line)
+# note        copy the current note to the clipboard
+NOTE="$(xdg-user-dir DOCUMENTS 2>/dev/null || echo "$HOME/Documents")/note.txt"
+
+copy() {
+    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null; then wl-copy >/dev/null 2>&1
+    elif command -v xclip >/dev/null; then xclip -selection clipboard >/dev/null 2>&1
+    elif command -v xsel >/dev/null; then xsel --clipboard --input
+    elif command -v pbcopy >/dev/null; then pbcopy
+    else echo "no clipboard tool found (install wl-clipboard or xclip)" >&2; return 1
+    fi
+}
+
+paste() {
+    if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-paste >/dev/null; then wl-paste --no-newline
+    elif command -v xclip >/dev/null; then xclip -selection clipboard -o
+    elif command -v xsel >/dev/null; then xsel --clipboard --output
+    elif command -v pbpaste >/dev/null; then pbpaste
+    else echo "no clipboard tool found (install wl-clipboard or xclip)" >&2; return 1
+    fi
+}
+
+save() {
+    mkdir -p "$(dirname "$NOTE")"
+    printf '%s\n' "$1" > "$NOTE"
+    echo "noted"
+}
+
+if [ "$*" = "+" ]; then
+    text=$(paste) || exit 1
+    [ -n "$text" ] || { echo "clipboard is empty" >&2; exit 1; }
+    save "$text"
+elif [ $# -gt 0 ]; then
+    save "$*"
+else
+    [ -s "$NOTE" ] || { echo "no note yet" >&2; exit 1; }
+    printf '%s' "$(cat "$NOTE")" | copy || exit 1
+    echo "copied: $(cat "$NOTE")"
+fi
