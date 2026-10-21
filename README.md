@@ -12,11 +12,12 @@ keeps it in `~/Documents/note.txt`, so it's still there after a reboot.
 | Command | What it does |
 |---|---|
 | `note call the dentist at 9` | Saves the text as your note (replaces the old one) |
-| `note +` | Saves whatever is on your clipboard, any length, multi-line prompts included |
+| `note ` + paste | Saves a pasted prompt, multi-line included |
 | `note` | Copies the current note back to your clipboard |
 
-Type notes naturally: quotes, `*`, `;`, `$` and brackets are kept exactly as written.
-For anything spanning several lines, copy it and run `note +`.
+Type or paste notes naturally: quotes, `*`, `;`, `$`, brackets and line breaks are kept
+exactly as written, and nothing in the note is ever run as a command. (`note +` also saves
+whatever is on the clipboard.)
 
 ## Install
 

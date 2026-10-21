@@ -1,11 +1,21 @@
-# Lets `note` take any text as typed (quotes, *, ?, ; ...) by reading the raw command
-# line from history; the alias's trailing # stops bash from parsing the rest.
-_note_raw() {
-    local line
-    line=$(HISTTIMEFORMAT= history 1)
-    line=${line#*[0-9]  }
-    line=${line#*note}
-    line=${line#"${line%%[![:space:]]*}"}
-    if [ -n "$line" ]; then command note "$line"; else command note; fi
+# Makes `note <anything>` take the text exactly as typed or pasted, including
+# quotes, *, ; and multiple lines. Enter is hooked: a line starting with `note `
+# is rewritten into one safely quoted command before bash runs it.
+_note_enter() {
+    local line=$READLINE_LINE
+    local cmd=${line#"${line%%[![:space:]]*}"}
+    [[ $cmd == note[[:space:]]* ]] || return
+    local text=${cmd#note}
+    text=${text#"${text%%[![:space:]]*}"}
+    text=${text%"${text##*[![:space:]]}"}
+    [[ -n $text && $text != "+" ]] || return
+    READLINE_LINE="note ${text@Q}"
+    READLINE_POINT=${#READLINE_LINE}
 }
-alias note='_note_raw #'
+
+if [[ $- == *i* ]] && bind -v 2>/dev/null | grep -q 'editing-mode emacs'; then
+    bind -x '"\C-x\C-o": _note_enter'
+    bind '"\C-x\C-a": accept-line'
+    bind '"\C-m": "\C-x\C-o\C-x\C-a"'
+    bind '"\C-j": "\C-x\C-o\C-x\C-a"'
+fi
